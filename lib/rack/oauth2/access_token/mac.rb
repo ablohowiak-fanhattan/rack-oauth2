@@ -19,24 +19,40 @@ module Rack
         end
 
         def verify!(request)
+          puts "In oauth2 gem verifying request"
           if request.body_hash.present?
-            BodyHash.new(
-              :raw_body  => request.body.read,
-              :algorithm => self.mac_algorithm
-            ).verify!(request.body_hash)
+            begin
+              puts "body_hash is present!"
+              BodyHash.new(
+                :raw_body  => request.body.read,
+                :algorithm => self.mac_algorithm
+              ).verify!(request.body_hash)
+              puts "body_hash was verified"
+            ensure
+              puts "body_hash verification over"
+            end
           end
-          Signature.new(
-            :secret      => self.mac_key,
-            :algorithm   => self.mac_algorithm,
-            :nonce       => request.nonce,
-            :method      => request.request_method,
-            :request_uri => request.fullpath,
-            :host        => request.host,
-            :port        => request.port,
-            :body_hash   => request.body_hash,
-            :ext         => request.ext
-          ).verify!(request.signature)
+          begin
+            params = {
+              :secret      => self.mac_key,
+              :algorithm   => self.mac_algorithm,
+              :nonce       => request.nonce,
+              :method      => request.request_method,
+              :request_uri => request.fullpath,
+              :host        => request.host,
+              :port        => request.port,
+              :body_hash   => request.body_hash,
+              :ext         => request.ext
+            }
+
+            puts "begin signature verify with params: #{params}"
+            Signature.new(params).verify!(request.signature)
+            puts "Signature verify is complete."
+          ensure
+            puts "Signature verify is over."
+          end
         rescue Verifier::VerificationFailed => e
+          puts "verification failed in mac.rb #{e.message} #{e.backtrace} #{caller}"
           request.invalid_token! e.message
         end
 

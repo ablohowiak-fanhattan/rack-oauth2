@@ -21,6 +21,7 @@ module Rack
             if expected == self.calculate
               :verified
             else
+              puts "verified did not equal expected #{expected} vs. #{self.calculate}"
               raise VerificationFailed.new("#{self.class.name.demodulize} Invalid")
             end
           end

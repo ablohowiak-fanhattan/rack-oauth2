@@ -7,6 +7,7 @@ module Rack
           attr_optional :body_hash, :ext, :query
 
           def calculate
+            puts "In calculating verifier: #{hash_generator} #{secret} #{normalized_request_string}"
             Rack::OAuth2::Util.base64_encode OpenSSL::HMAC.digest(
               hash_generator,
               secret,

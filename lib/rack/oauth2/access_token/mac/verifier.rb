@@ -19,6 +19,7 @@ module Rack
 
           def verify!(expected)
             if expected == self.calculate
+              puts "verified did equal expected #{expected} vs. #{self.calculate}"
               :verified
             else
               puts "verified did not equal expected #{expected} vs. #{self.calculate}"
